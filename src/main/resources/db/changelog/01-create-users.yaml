@@ -22,6 +22,18 @@ databaseChangeLog:
                   name: middle_name
                   type: VARCHAR(50)
               - column:
+                  name: gender
+                  type: VARCHAR(10)
+              - column:
+                  name: phone_number
+                  type: VARCHAR(15)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: date_of_birth
+                  type: DATE
+              - column:
                   name: password
                   type: VARCHAR(255)
                   constraints:
@@ -29,6 +41,9 @@ databaseChangeLog:
               - column:
                   name: email
                   type: VARCHAR(255)
+                  constraints:
+                    unique: true
+                    nullable: false
               - column:
                   name: role
                   type: VARCHAR(20)
