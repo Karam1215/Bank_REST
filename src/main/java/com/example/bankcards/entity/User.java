@@ -45,6 +45,12 @@ public class User {
     @Schema(name = "lastName", example = "Карам", requiredMode = Schema.RequiredMode.REQUIRED, description = "Фамилия пользователя.")
     private String lastName;
 
+    @NotBlank(message = "Password can't be empty")
+    @Column(name = "password")
+    @Size(min = 7, max = 255, message = "Password should be between 7 and 255 characters.")
+    @Schema(name = "password", example = "pass123123", requiredMode = Schema.RequiredMode.REQUIRED, description = "User's password. Should be between 7 and 255 characters.")
+    private String password;
+
     @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Введите корректный email")
     @Column(name = "email", unique = true, nullable = false)
