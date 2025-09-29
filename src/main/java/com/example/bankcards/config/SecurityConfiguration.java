@@ -37,7 +37,9 @@ public class SecurityConfiguration implements WebMvcConfigurer{
                                         "/auth/user/**",
                                         "/v3/api-docs",
                                         "/v3/api-docs/**",
-                                        "/swagger-ui/**"
+                                        "/swagger-ui/**",
+                                        "/auth/client/**",
+                                        "/auth/admin/login"
                                         ).permitAll()
                                 .anyRequest().authenticated()
                 )
