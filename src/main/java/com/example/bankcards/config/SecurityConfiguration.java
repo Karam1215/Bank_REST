@@ -1,5 +1,4 @@
 package com.example.bankcards.config;
-
 import com.example.bankcards.JWT.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
