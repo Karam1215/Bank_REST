@@ -2,25 +2,26 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.JWT.JWTService;
 import com.example.bankcards.cookies.CookieUtil;
-import com.example.bankcards.dto.UserDTO;
 import com.example.bankcards.dto.UserLoginDTO;
+import com.example.bankcards.dto.UserProfileDTO;
 import com.example.bankcards.dto.UserRegistrationDTO;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.enums.Role;
 import com.example.bankcards.exception.EmailAlreadyExistException;
 import com.example.bankcards.exception.InvalidCredentialsException;
 import com.example.bankcards.exception.UserNotFoundException;
+import com.example.bankcards.mappers.UserMapper;
 import com.example.bankcards.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 class ClientServiceTest {
 
     @Mock
@@ -45,9 +47,11 @@ class ClientServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private UserMapper userMapper;
+
     @InjectMocks
     private ClientService clientService;
-
 
     @BeforeEach
     void setUp() {
@@ -157,13 +161,20 @@ class ClientServiceTest {
 
         when(userRepository.findAllByRole(Role.USER)).thenReturn(List.of(user1, user2));
 
-        ResponseEntity<List<UserDTO>> response = clientService.getAllUsersWithRoleUser();
+        // Mock the mapper to return DTOs
+        when(userMapper.toDtoList(List.of(user1, user2))).thenReturn(List.of(
+                new UserProfileDTO(user1.getFirstName(), user1.getLastName(), user1.getEmail()),
+                new UserProfileDTO(user2.getFirstName(), user2.getLastName(), user2.getEmail())
+        ));
+
+        ResponseEntity<List<UserProfileDTO>> response = clientService.getAllUsersWithRoleUser();
 
         assertEquals(2, response.getBody().size());
         assertEquals("Ivan", response.getBody().get(0).firstName());
         assertEquals("Petr", response.getBody().get(1).firstName());
 
         verify(userRepository, times(1)).findAllByRole(Role.USER);
+        verify(userMapper, times(1)).toDtoList(List.of(user1, user2));
     }
 
     @Test
@@ -178,14 +189,16 @@ class ClientServiceTest {
                 .build();
 
         when(userRepository.findUserByUserId(userId)).thenReturn(Optional.of(user));
+        when(userMapper.toDto(user)).thenReturn(new UserProfileDTO(user.getFirstName(), user.getLastName(), user.getEmail()));
 
-        ResponseEntity<UserDTO> response = clientService.getUserById(userId);
+        ResponseEntity<UserProfileDTO> response = clientService.getUserById(userId);
 
         assertEquals("Anna", response.getBody().firstName());
         assertEquals("Smirnova", response.getBody().lastName());
         assertEquals("anna@example.com", response.getBody().email());
 
         verify(userRepository, times(1)).findUserByUserId(userId);
+        verify(userMapper, times(1)).toDto(user);
     }
 
     @Test
@@ -197,5 +210,6 @@ class ClientServiceTest {
         assertThrows(UserNotFoundException.class, () -> clientService.getUserById(userId));
 
         verify(userRepository, times(1)).findUserByUserId(userId);
+        verify(userMapper, never()).toDto(any());
     }
 }
