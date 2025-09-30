@@ -158,4 +158,10 @@ public class GlobalExceptionHandler {
         log.warn("Card conflict: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<CustomizeException> handleCardNotFoundException(UserNameAlreadyExist ex) {
+        log.warn("Card conflict: {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

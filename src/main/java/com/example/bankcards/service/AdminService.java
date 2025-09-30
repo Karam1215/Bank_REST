@@ -2,27 +2,19 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.JWT.JWTService;
 import com.example.bankcards.cookies.CookieUtil;
-import com.example.bankcards.dto.ChangePasswordRequest;
 import com.example.bankcards.dto.UserLoginDTO;
-import com.example.bankcards.dto.UserRegistrationDTO;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.enums.Role;
-import com.example.bankcards.exception.EmailAlreadyExistException;
 import com.example.bankcards.exception.InvalidCredentialsException;
 import com.example.bankcards.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Slf4j
 @Service

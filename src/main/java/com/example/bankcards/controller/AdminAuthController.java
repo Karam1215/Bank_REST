@@ -1,11 +1,8 @@
 package com.example.bankcards.controller;
 
 import com.example.bankcards.JWT.JWTService;
-import com.example.bankcards.dto.ChangePasswordRequest;
 import com.example.bankcards.dto.UserLoginDTO;
-import com.example.bankcards.dto.UserRegistrationDTO;
 import com.example.bankcards.service.AdminService;
-import com.example.bankcards.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -18,7 +15,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -33,8 +29,6 @@ public class AdminAuthController {
 
     private final AdminService adminService;
     private final JWTService jwtService;
-
-
 
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticates the player and returns a JWT token.")
@@ -55,5 +49,4 @@ public class AdminAuthController {
     public void validateToken(@RequestParam("token") String token) {
         jwtService.validateToken(token);
     }
-
 }

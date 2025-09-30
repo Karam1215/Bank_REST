@@ -1,23 +1,21 @@
 package com.example.bankcards.service;
 
-import com.example.bankcards.dto.CreateCardDTO;
+import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.enums.Role;
+import com.example.bankcards.mappers.CardMapper;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,79 +23,75 @@ import static org.mockito.Mockito.*;
 
 class CardServiceTest {
 
-    @InjectMocks
-    private CardService cardService;
-
     @Mock
     private CardRepository cardRepository;
 
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private Authentication authentication;
+    @Spy
+    private CardMapper cardMapper = CardMapper.INSTANCE;
 
-    @Mock
-    private SecurityContext securityContext;
+    @InjectMocks
+    private CardService cardService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        SecurityContextHolder.setContext(securityContext);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+    }
+
+    private User buildUser(UUID id) {
+        return User.builder()
+                .userId(id)
+                .firstName("Иван")
+                .lastName("Иванов")
+                .email("ivan@example.com")
+                .phoneNumber("+7(123)456-78-90")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .role(Role.USER)
+                .build();
+    }
+
+    private Card buildCard(UUID cardId, User user) {
+        return Card.builder()
+                .cardId(cardId)
+                .cardNumber("1234-5678-9012-3456")
+                .expirationDate(LocalDate.of(2030, 12, 31))
+                .balance(BigDecimal.valueOf(1000))
+                .status("ACTIVE")
+                .user(user)
+                .build();
     }
 
     @Test
-    void testCreateCard_AdminSuccess() {
-        // Mock admin user in token
-        UUID adminId = UUID.randomUUID();
-        when(authentication.getName()).thenReturn(adminId.toString());
-
-        User admin = new User();
-        admin.setUserId(adminId);
-        admin.setRole(Role.valueOf("ADMIN"));
-
-        when(userRepository.findUserByUserId(adminId)).thenReturn(Optional.of(admin));
-
-        // Mock target user
+    void getAllCards_ShouldReturnListOfCardResponseDTO() {
+        // given
         UUID userId = UUID.randomUUID();
-        User targetUser = new User();
-        targetUser.setUserId(userId);
-        targetUser.setRole(Role.valueOf("USER"));
+        User user = buildUser(userId);
+        Card card1 = buildCard(UUID.randomUUID(), user);
+        Card card2 = buildCard(UUID.randomUUID(), user);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(targetUser));
+        when(cardRepository.findAll()).thenReturn(List.of(card1, card2));
 
-        // Create DTO
-        CreateCardDTO dto = new CreateCardDTO(userId, "1234-5678-9012-3456",
-                LocalDate.now().plusYears(3),"ACTIVE" ,BigDecimal.valueOf(10000));
+        // when
+        ResponseEntity<List<CardResponseDTO>> response = cardService.getAllCards();
 
-        // Call service
-        ResponseEntity<String> response = cardService.createCard(dto);
+        // then
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
 
-        // Verify
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("🎊 Card created 🚀", response.getBody());
-        verify(cardRepository, times(1)).save(any(Card.class));
-    }
+        CardResponseDTO dto = response.getBody().get(0);
+        assertEquals(new String("****-****-****-" + card1.getCardNumber().substring(15)), dto.cardNumber());
+        assertEquals(card1.getBalance(), dto.balance());
+        assertEquals(card1.getExpirationDate(), dto.expirationDate());
+        assertEquals("ACTIVE", dto.status());
 
-    @Test
-    void testCreateCard_NotAdmin_ThrowsException() {
-        UUID userId = UUID.randomUUID();
-        when(authentication.getName()).thenReturn(userId.toString());
+        assertNotNull(dto.user());
+        assertEquals(user.getUserId(), dto.user().userId());
+        assertEquals(user.getFirstName(), dto.user().firstName());
+        assertEquals(user.getEmail(), dto.user().email());
 
-        User notAdmin = new User();
-        notAdmin.setUserId(userId);
-        notAdmin.setRole(Role.valueOf("USER"));
-
-        when(userRepository.findUserByUserId(userId)).thenReturn(Optional.of(notAdmin));
-
-        CreateCardDTO dto = new CreateCardDTO(UUID.randomUUID(), "1234-5678-9012-3456",
-                LocalDate.now().plusYears(3),"ACTIVE" ,BigDecimal.valueOf(10000));
-
-        assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            cardService.createCard(dto);
-        });
-
-        verify(cardRepository, never()).save(any());
+        verify(cardRepository, times(1)).findAll();
     }
 }

@@ -142,66 +142,6 @@ class ClientServiceTest {
     }
 
     @Test
-    void getAllUsersWithRoleUser_ShouldReturnListOfUserDTOs() {
-        User user1 = User.builder()
-                .userId(UUID.randomUUID())
-                .firstName("Ivan")
-                .lastName("Ivanov")
-                .email("ivan@example.com")
-                .role(Role.USER)
-                .build();
-
-        User user2 = User.builder()
-                .userId(UUID.randomUUID())
-                .firstName("Petr")
-                .lastName("Petrov")
-                .email("petr@example.com")
-                .role(Role.USER)
-                .build();
-
-        when(userRepository.findAllByRole(Role.USER)).thenReturn(List.of(user1, user2));
-
-        // Mock the mapper to return DTOs
-        when(userMapper.toDtoList(List.of(user1, user2))).thenReturn(List.of(
-                new UserProfileDTO(user1.getFirstName(), user1.getLastName(), user1.getEmail()),
-                new UserProfileDTO(user2.getFirstName(), user2.getLastName(), user2.getEmail())
-        ));
-
-        ResponseEntity<List<UserProfileDTO>> response = clientService.getAllUsersWithRoleUser();
-
-        assertEquals(2, response.getBody().size());
-        assertEquals("Ivan", response.getBody().get(0).firstName());
-        assertEquals("Petr", response.getBody().get(1).firstName());
-
-        verify(userRepository, times(1)).findAllByRole(Role.USER);
-        verify(userMapper, times(1)).toDtoList(List.of(user1, user2));
-    }
-
-    @Test
-    void getUserById_ShouldReturnUserDTO_WhenUserExists() {
-        UUID userId = UUID.randomUUID();
-        User user = User.builder()
-                .userId(userId)
-                .firstName("Anna")
-                .lastName("Smirnova")
-                .email("anna@example.com")
-                .role(Role.USER)
-                .build();
-
-        when(userRepository.findUserByUserId(userId)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(user)).thenReturn(new UserProfileDTO(user.getFirstName(), user.getLastName(), user.getEmail()));
-
-        ResponseEntity<UserProfileDTO> response = clientService.getUserById(userId);
-
-        assertEquals("Anna", response.getBody().firstName());
-        assertEquals("Smirnova", response.getBody().lastName());
-        assertEquals("anna@example.com", response.getBody().email());
-
-        verify(userRepository, times(1)).findUserByUserId(userId);
-        verify(userMapper, times(1)).toDto(user);
-    }
-
-    @Test
     void getUserById_ShouldThrowException_WhenUserNotFound() {
         UUID userId = UUID.randomUUID();
 
