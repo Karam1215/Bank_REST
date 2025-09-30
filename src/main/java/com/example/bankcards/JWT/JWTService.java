@@ -24,6 +24,7 @@ public class JWTService {
 
     @Value("${my.jwt.secret-key}")
     private String secretKey;
+
     public String generateAccessToken(UUID userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", "ROLE_" + role);

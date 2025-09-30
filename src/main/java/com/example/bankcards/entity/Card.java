@@ -1,5 +1,6 @@
 package com.example.bankcards.entity;
 
+import com.example.bankcards.converters.CardNumberEncryptor;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -22,6 +23,9 @@ import java.util.UUID;
 @Schema(description = "Сущность банковской карты")
 public class Card {
 
+    @Transient
+    private String maskedCardNumber;
+
     @Id
     @Column(name = "card_id", nullable = false, updatable = false)
     @GeneratedValue
@@ -34,7 +38,7 @@ public class Card {
     @Schema(name = "userId", description = "Пользователь, которому принадлежит карта")
     private User user;
 
-    @NotBlank(message = "Номер карты не может быть пустым")
+    @Convert(converter = CardNumberEncryptor.class)
     @Column(name = "card_number", unique = true, nullable = false, length = 50)
     @Schema(name = "cardNumber", example = "1234-5678-9012-3456", description = "Номер карты. Должен быть уникальным.")
     private String cardNumber;
@@ -72,5 +76,13 @@ public class Card {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public String getMaskedCardNumber() {
+        if (cardNumber == null || cardNumber.length() < 4) {
+            return "Error";
+        }
+        String last4 = cardNumber.substring(cardNumber.length() - 4);
+        return "****-****-****-" + last4;
     }
 }

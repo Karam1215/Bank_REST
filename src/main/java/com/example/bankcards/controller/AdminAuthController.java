@@ -34,17 +34,7 @@ public class AdminAuthController {
     private final AdminService adminService;
     private final JWTService jwtService;
 
-/*    @PostMapping("/register")
-    @Operation(summary = "Register a new player", description = "Creates a new player account. Requires unique email and username.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Player registered successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content),
-            @ApiResponse(responseCode = "409", description = "Email or username already exists", content = @Content)
-    })
-    public ResponseEntity<String> registerPlayer(@Valid @RequestBody UserRegistrationDTO dto) {
-        log.info("Registering player: {}", dto.firstName() + " " + dto.lastName());
-        return clientService.createClient(dto);
-    }*/
+
 
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticates the player and returns a JWT token.")

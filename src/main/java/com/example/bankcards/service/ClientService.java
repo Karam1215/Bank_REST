@@ -2,13 +2,13 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.JWT.JWTService;
 import com.example.bankcards.cookies.CookieUtil;
-import com.example.bankcards.dto.ChangePasswordRequest;
-import com.example.bankcards.dto.UserLoginDTO;
-import com.example.bankcards.dto.UserRegistrationDTO;
+import com.example.bankcards.dto.*;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.enums.Role;
 import com.example.bankcards.exception.EmailAlreadyExistException;
 import com.example.bankcards.exception.InvalidCredentialsException;
+import com.example.bankcards.exception.UserNotFoundException;
+import com.example.bankcards.mappers.UserMapper;
 import com.example.bankcards.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ValidationException;
@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class ClientService {
     private final JWTService jwtService;
     private final CookieUtil cookieUtil;
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -99,5 +101,52 @@ public class ClientService {
         userRepository.save(user);
         log.info("Password changed successfully");
         return ResponseEntity.ok("Password changed successfully.");
+    }
+
+
+    public ResponseEntity<List<UserProfileDTO>> getAllUsersWithRoleUser() {
+        List<User> users = userRepository.findAllByRole(Role.USER);
+
+        return ResponseEntity.ok(userMapper.toDtoList(users));
+    }
+
+    public ResponseEntity<UserProfileDTO> getUserById(UUID userId) {
+        User user = userRepository.findUserByUserId(userId)
+                .orElseThrow(() -> {
+                    log.warn("can not find user: {}", userId );
+                    return new UserNotFoundException("can not find user");
+                });
+
+        return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    public ResponseEntity<String> deleteClientByUsername(String userId) {
+        log.info("Attempting to delete account for: {}", userId);
+        UUID uuid = UUID.fromString(userId);
+        User userToBeDeleted = userRepository.findUserByUserId(uuid).orElseThrow(() -> {
+            log.warn("Player not found for deletion: {}", userId);
+            throw new UserNotFoundException("Player not found for deletion");
+        });
+
+        userRepository.delete(userToBeDeleted);
+        log.info("Player account deleted: {} 🎉🎉🎉🎉🎉🎉", userId);
+
+        return new ResponseEntity<>("Account deleted successfully", HttpStatus.OK);
+    }
+
+    public ResponseEntity<String> updateUserProfile(UpdateUserProfileDTO updateUserProfileDTO,
+                                                        String userId) {
+        log.info("Updating profile for player: {}", userId);
+        UUID uuid = UUID.fromString(userId);
+        User user = userRepository.findUserByUserId(uuid).orElseThrow(() -> {
+            log.warn("User not found for profile update: {}", userId);
+             throw new UserNotFoundException("User not found for profile update");
+        });
+
+        userMapper.updateUserFromDto(updateUserProfileDTO, user);
+        userRepository.save(user);
+
+        log.info("Profile updated successfully for player: {} 🎉🎉🎉🎉🎉🎉", user.getFirstName());
+        return new ResponseEntity<>("Profile updated successfully", HttpStatus.OK);
     }
 }

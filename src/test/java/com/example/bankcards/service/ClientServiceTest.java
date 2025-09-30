@@ -2,12 +2,14 @@ package com.example.bankcards.service;
 
 import com.example.bankcards.JWT.JWTService;
 import com.example.bankcards.cookies.CookieUtil;
+import com.example.bankcards.dto.UserDTO;
 import com.example.bankcards.dto.UserLoginDTO;
 import com.example.bankcards.dto.UserRegistrationDTO;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.enums.Role;
 import com.example.bankcards.exception.EmailAlreadyExistException;
 import com.example.bankcards.exception.InvalidCredentialsException;
+import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +48,7 @@ class ClientServiceTest {
     @InjectMocks
     private ClientService clientService;
 
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -69,7 +73,7 @@ class ClientServiceTest {
         when(userRepository.findUserByEmail(dto.email())).thenReturn(Optional.empty());
         when(passwordEncoder.encode(dto.password())).thenReturn("encodedPass");
 
-        ResponseEntity<String> response = clientService.createPlayer(dto);
+        ResponseEntity<String> response = clientService.createClient(dto);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
@@ -91,7 +95,7 @@ class ClientServiceTest {
 
         when(userRepository.findUserByEmail(dto.email())).thenReturn(Optional.of(new User()));
 
-        assertThrows(EmailAlreadyExistException.class, () -> clientService.createPlayer(dto));
+        assertThrows(EmailAlreadyExistException.class, () -> clientService.createClient(dto));
 
         verify(userRepository, never()).save(any());
     }
@@ -131,5 +135,67 @@ class ClientServiceTest {
 
         verify(authenticationManager, never()).authenticate(any());
         verify(cookieUtil, never()).addAuthTokenCookie(any(), anyString());
+    }
+
+    @Test
+    void getAllUsersWithRoleUser_ShouldReturnListOfUserDTOs() {
+        User user1 = User.builder()
+                .userId(UUID.randomUUID())
+                .firstName("Ivan")
+                .lastName("Ivanov")
+                .email("ivan@example.com")
+                .role(Role.USER)
+                .build();
+
+        User user2 = User.builder()
+                .userId(UUID.randomUUID())
+                .firstName("Petr")
+                .lastName("Petrov")
+                .email("petr@example.com")
+                .role(Role.USER)
+                .build();
+
+        when(userRepository.findAllByRole(Role.USER)).thenReturn(List.of(user1, user2));
+
+        ResponseEntity<List<UserDTO>> response = clientService.getAllUsersWithRoleUser();
+
+        assertEquals(2, response.getBody().size());
+        assertEquals("Ivan", response.getBody().get(0).firstName());
+        assertEquals("Petr", response.getBody().get(1).firstName());
+
+        verify(userRepository, times(1)).findAllByRole(Role.USER);
+    }
+
+    @Test
+    void getUserById_ShouldReturnUserDTO_WhenUserExists() {
+        UUID userId = UUID.randomUUID();
+        User user = User.builder()
+                .userId(userId)
+                .firstName("Anna")
+                .lastName("Smirnova")
+                .email("anna@example.com")
+                .role(Role.USER)
+                .build();
+
+        when(userRepository.findUserByUserId(userId)).thenReturn(Optional.of(user));
+
+        ResponseEntity<UserDTO> response = clientService.getUserById(userId);
+
+        assertEquals("Anna", response.getBody().firstName());
+        assertEquals("Smirnova", response.getBody().lastName());
+        assertEquals("anna@example.com", response.getBody().email());
+
+        verify(userRepository, times(1)).findUserByUserId(userId);
+    }
+
+    @Test
+    void getUserById_ShouldThrowException_WhenUserNotFound() {
+        UUID userId = UUID.randomUUID();
+
+        when(userRepository.findUserByUserId(userId)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> clientService.getUserById(userId));
+
+        verify(userRepository, times(1)).findUserByUserId(userId);
     }
 }

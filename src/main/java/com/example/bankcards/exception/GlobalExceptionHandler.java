@@ -147,4 +147,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomizeException> handleBadCredentials(BadCredentialsException ex) {
         return buildErrorResponse("Неверный email или пароль", HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<CustomizeException> handleUserNotFound(UserNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }
