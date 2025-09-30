@@ -10,7 +10,6 @@ import com.example.bankcards.enums.Role;
 import com.example.bankcards.exception.CardAlreadyExistException;
 import com.example.bankcards.exception.CardNotFoundException;
 import com.example.bankcards.exception.InvalidCredentialsException;
-import com.example.bankcards.exception.UserNotFoundException;
 import com.example.bankcards.mappers.CardMapper;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;

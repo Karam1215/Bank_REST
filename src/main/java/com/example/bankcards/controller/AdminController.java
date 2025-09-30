@@ -1,8 +1,10 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.CardBlockRequestDTO;
 import com.example.bankcards.dto.UpdateUserProfileDTO;
 import com.example.bankcards.dto.UserProfileDTO;
 import com.example.bankcards.dto.UserRegistrationDTO;
+import com.example.bankcards.service.CardBlockRequestService;
 import com.example.bankcards.service.ClientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,7 +28,7 @@ import java.util.UUID;
 public class AdminController {
 
     private final ClientService userService;
-
+    private final CardBlockRequestService cardBlockRequestService;
     @GetMapping("/users")
     @Operation(summary = "Получить всех пользователей с ролью USER", description = "Возвращает список всех пользователей, у которых роль USER")
     @ApiResponses(value = {
@@ -102,4 +104,10 @@ public class AdminController {
         log.info("Запрос на обновление профиля пользователя с ID: {}", userId);
         return userService.updateUserProfile(updateUserProfileDTO, userId);
     }
+
+    @GetMapping("/clients/block-requests")
+    public ResponseEntity<List<CardBlockRequestDTO>> getAllRequests() {
+        return cardBlockRequestService.getAllRequests();
+    }
+
 }

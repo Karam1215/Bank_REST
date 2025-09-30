@@ -3,6 +3,8 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.dto.CardUpdateDTO;
 import com.example.bankcards.dto.CreateCardDTO;
+import com.example.bankcards.entity.CardBlockRequest;
+import com.example.bankcards.service.CardBlockRequestService;
 import com.example.bankcards.service.CardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -23,7 +26,7 @@ import java.util.List;
 public class CardController {
 
     private final CardService cardService;
-
+    private final CardBlockRequestService cardBlockRequestService;
     @Operation(
             summary = "Создать новую карту",
             description = "Администратор может создать новую банковскую карту для конкретного пользователя"
@@ -84,5 +87,11 @@ public class CardController {
     ) {
         log.info("Запрос администратора на обновление карты {}", id);
         return cardService.updateCard(id, dto);
+    }
+
+    @PostMapping("/{cardId}/block-request")
+    public ResponseEntity<String> requestCardBlock(
+            @PathVariable UUID cardId) {
+        return cardBlockRequestService.requestCardBlock(cardId);
     }
 }
