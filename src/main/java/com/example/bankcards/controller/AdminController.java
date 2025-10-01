@@ -109,6 +109,4 @@ public class AdminController {
     public ResponseEntity<List<CardBlockRequestDTO>> getAllRequests() {
         return cardBlockRequestService.getAllRequests();
     }
-
-
 }

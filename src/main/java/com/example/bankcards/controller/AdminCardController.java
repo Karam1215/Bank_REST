@@ -103,7 +103,7 @@ public class AdminCardController {
     }
 
     @Operation(summary = "Получить все транзакции", description = "Администратор получает список транзакций с пагинацией")
-    @GetMapping
+    @GetMapping("/transactions")
     public ResponseEntity<Page<TransactionReturnDTO>> getAllTransactions(Pageable pageable) {
         log.info("Админ запросил список транзакций, page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
         return transferService.getAllTransactions(pageable);
