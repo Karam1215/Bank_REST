@@ -7,33 +7,51 @@ databaseChangeLog:
             tableName: users
             columns:
               - column:
-                  name: id
-                  type: BIGSERIAL
+                  name: user_id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
                   constraints:
                     primaryKey: true
+              - column:
+                  name: first_name
+                  type: VARCHAR(50)
+              - column:
+                  name: last_name
+                  type: VARCHAR(50)
+              - column:
+                  name: middle_name
+                  type: VARCHAR(50)
+              - column:
+                  name: gender
+                  type: VARCHAR(10)
+              - column:
+                  name: phone_number
+                  type: VARCHAR(15)
+                  constraints:
+                    unique: true
                     nullable: false
               - column:
-                  name: username
-                  type: VARCHAR(50)
-                  constraints:
-                    nullable: false
-                    unique: true
+                  name: date_of_birth
+                  type: DATE
               - column:
                   name: password
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
               - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
                   name: role
-                  type: VARCHAR(20) # ADMIN / USER
+                  type: VARCHAR(20)
                   constraints:
                     nullable: false
               - column:
-                  name: firstname
-                  type: VARCHAR(50)
+                  name: created_at
+                  type: TIMESTAMP
               - column:
-                  name: lastname
-                  type: VARCHAR(50)
-              - column:
-                  name: middlename
-                  type: VARCHAR(50)
+                  name: updated_at
+                  type: TIMESTAMP

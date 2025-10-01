@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: karam
+      changes:
+        - createTable:
+            tableName: card_block_requests
+            columns:
+              - column:
+                  name: request_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: card_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_requests_cards
+                    references: cards(card_id)
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_requests_users
+                    references: users(user_id)
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: processed_at
+                  type: TIMESTAMP
+              - column:
+                  name: processed_by
+                  type: UUID
+                  constraints:
+                    foreignKeyName: fk_requests_processed_by
+                    references: users(user_id)

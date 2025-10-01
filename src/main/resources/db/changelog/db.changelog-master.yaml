@@ -1,3 +1,10 @@
 databaseChangeLog:
   - include:
       file: db/changelog/01-create-users.yaml
+  - include:
+      file: db/changelog/02-create-cards.yaml
+  - include:
+      file: db/changelog/03-create-transactions.yaml
+  - include:
+      file: db/changelog/04-create-card_block_requests.yaml
+

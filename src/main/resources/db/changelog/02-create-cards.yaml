@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: karam
+      changes:
+        - createTable:
+            tableName: cards
+            columns:
+              - column:
+                  name: card_id
+                  type: UUID
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_cards_users
+                    references: users(user_id)
+                    deleteCascade: true
+              - column:
+                  name: card_number
+                  type: VARCHAR(50)
+                  constraints:
+                    unique: true
+              - column:
+                  name: expiration_date
+                  type: DATE
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+              - column:
+                  name: balance
+                  type: DECIMAL(15,2)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_by
+                  type: UUID
+                  constraints:
+                    foreignKeyName: fk_cards_created_by
+                    references: users(user_id)
+                    deleteCascade: true
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
