@@ -3,14 +3,18 @@ package com.example.bankcards.controller;
 import com.example.bankcards.dto.CardResponseDTO;
 import com.example.bankcards.dto.CardUpdateDTO;
 import com.example.bankcards.dto.CreateCardDTO;
-import com.example.bankcards.entity.CardBlockRequest;
+import com.example.bankcards.dto.TransactionReturnDTO;
 import com.example.bankcards.service.CardBlockRequestService;
 import com.example.bankcards.service.CardService;
+import com.example.bankcards.service.TransferService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,17 +27,20 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin/cards")
 @Tag(name = "API для управления банковскими картами",
      description = "Позволяет администратору создавать, получать, обновлять и удалять банковские карты")
-public class CardController {
+public class AdminCardController {
 
     private final CardService cardService;
     private final CardBlockRequestService cardBlockRequestService;
+    private final TransferService transferService;
+
+
     @Operation(
             summary = "Создать новую карту",
             description = "Администратор может создать новую банковскую карту для конкретного пользователя"
     )
     @PostMapping("/create")
     public ResponseEntity<String> createCard(
-            @RequestBody CreateCardDTO cardDTO
+            @Valid @RequestBody CreateCardDTO cardDTO
     ) {
         log.info("Запрос на создание карты: {}", cardDTO);
         return cardService.createCard(cardDTO);
@@ -83,7 +90,7 @@ public class CardController {
     public ResponseEntity<CardResponseDTO> updateCard(
             @Parameter(description = "UUID карты", example = "d290f1ee-6c54-4b01-90e6-d701748f0851")
             @PathVariable String id,
-            @RequestBody CardUpdateDTO dto
+            @Valid @RequestBody CardUpdateDTO dto
     ) {
         log.info("Запрос администратора на обновление карты {}", id);
         return cardService.updateCard(id, dto);
@@ -93,5 +100,12 @@ public class CardController {
     public ResponseEntity<String> requestCardBlock(
             @PathVariable UUID cardId) {
         return cardBlockRequestService.requestCardBlock(cardId);
+    }
+
+    @Operation(summary = "Получить все транзакции", description = "Администратор получает список транзакций с пагинацией")
+    @GetMapping
+    public ResponseEntity<Page<TransactionReturnDTO>> getAllTransactions(Pageable pageable) {
+        log.info("Админ запросил список транзакций, page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
+        return transferService.getAllTransactions(pageable);
     }
 }

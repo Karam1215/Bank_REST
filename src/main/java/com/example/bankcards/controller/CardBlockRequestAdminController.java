@@ -1,6 +1,7 @@
 
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.CardBlockRequestDTO;
 import com.example.bankcards.entity.CardBlockRequest;
 import com.example.bankcards.service.CardBlockRequestService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,11 +24,10 @@ public class CardBlockRequestAdminController {
 
     @Operation(summary = "Получить все запросы на блокировку карт", description = "Администратор может просмотреть все запросы, фильтровать по статусу")
     @GetMapping
-    public ResponseEntity<List<CardBlockRequest>> getAllBlockRequests(
+    public ResponseEntity<List<CardBlockRequestDTO>> getAllBlockRequests(
             @RequestParam(required = false) String status
     ) {
-        List<CardBlockRequest> requests = cardBlockRequestService.getAllBlockRequests(status);
-        return ResponseEntity.ok(requests);
+        return cardBlockRequestService.getAllRequests();
     }
 
     @Operation(summary = "Обработать запрос на блокировку карты", description = "Администратор может одобрить или отклонить запрос")
@@ -36,8 +36,6 @@ public class CardBlockRequestAdminController {
             @PathVariable Long requestId,
             @RequestParam String action
     ) {
-        CardBlockRequest updatedRequest = cardBlockRequestService.processBlockRequest(requestId, action, adminId);
-        return ResponseEntity.ok(updatedRequest);
+        return cardBlockRequestService.processBlockRequest(requestId, action);
     }
-
 }

@@ -38,5 +38,4 @@ public interface UserMapper {
      * Преобразует список сущностей User в список DTO UserDTO.
      */
     List<UserProfileDTO> toDtoList(List<User> users);
-
 }

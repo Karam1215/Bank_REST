@@ -45,6 +45,8 @@ public class SecurityConfiguration implements WebMvcConfigurer{
                                 .requestMatchers("/api/v1/admin/cards/**").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/user/cards").hasRole("USER")
                                 .requestMatchers("/api/v1/user/cards/**").hasRole("USER")
+                                .requestMatchers("/api/v1/user/transfers").hasRole("USER")
+                                .requestMatchers("/api/v1/user/transfers/me").hasRole("USER")
                                 .anyRequest().authenticated()
                 )
                  .sessionManagement(session ->
