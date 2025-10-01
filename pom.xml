@@ -111,7 +111,7 @@
                     <configuration>
                         <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
                         <outputFileName>openapi.yaml</outputFileName>
-                        <outputDir>${project.build.directory}/docs</outputDir>
+                        <outputDir>${project.basedir}/docs</outputDir>
                     </configuration>
             </plugin>
         </plugins>

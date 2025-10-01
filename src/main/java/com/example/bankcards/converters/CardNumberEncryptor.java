@@ -17,8 +17,7 @@ public class CardNumberEncryptor implements AttributeConverter<String, String> {
     private static final int IV_SIZE = 12;
     private static final int TAG_LENGTH_BIT = 128;
 
-    // In real projects, store in ENV/Config, don’t hardcode!
-    private static final String SECRET = "0123456789abcdef0123456789abcdef"; // 32 chars = 256-bit key
+    private static final String SECRET = "0123456789abcdef0123456789abcdef";
     private static final SecretKey SECRET_KEY = new SecretKeySpec(SECRET.getBytes(), "AES");
 
     @Override
@@ -31,7 +30,6 @@ public class CardNumberEncryptor implements AttributeConverter<String, String> {
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, spec);
             byte[] encrypted = cipher.doFinal(attribute.getBytes());
 
-            // Store IV + encrypted together
             ByteBuffer byteBuffer = ByteBuffer.allocate(iv.length + encrypted.length);
             byteBuffer.put(iv);
             byteBuffer.put(encrypted);
@@ -64,7 +62,6 @@ public class CardNumberEncryptor implements AttributeConverter<String, String> {
         }
     }
 
-    // Holder for SecureRandom
     private static class SecureRandomHolder {
         private static final java.security.SecureRandom RANDOM = new java.security.SecureRandom();
 
