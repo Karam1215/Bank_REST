@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,5 +33,12 @@ public class UserCardController {
     ) {
         log.info("Запрос на получение карт текущего пользователя с пагинацией: {}", pageable);
         return cardService.getUserCards(pageable);
+    }
+    @GetMapping("/search")
+    public ResponseEntity<Page<CardResponseDTO>> searchCards(
+            @RequestParam String cardNumber,
+            @PageableDefault(size = 5) Pageable pageable) {
+
+        return cardService.searchCardsByNumber(cardNumber, pageable);
     }
 }

@@ -162,4 +162,15 @@ public class CardService {
 
         return ResponseEntity.ok(new CardBalanceDTO(card.getBalance()));
     }
+
+    public ResponseEntity<Page<CardResponseDTO>> searchCardsByNumber(String cardNumber, Pageable pageable) {
+        Page<Card> cards = cardRepository.findByCardNumberContaining(cardNumber, pageable);
+        Page<CardResponseDTO> dtoPage = cards.map(cardMapper::toResponseDto);
+
+        if (dtoPage.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(dtoPage);
+    }
 }
