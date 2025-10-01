@@ -19,7 +19,7 @@
 - [System Features](#-system-features)
 - [Quick Start](#-quick-start)
 - [API Documentation](#-api-documentation)
-- [Database Migrations](#-database-migrations)
+- [Миграции базы данных](#%EF%B8%8F-миграции-базы-данных)
 - [Conclusion and Future Plans](#-conclusion-and-future-plans)
 
 ## 🌟 Project Overview
