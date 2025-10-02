@@ -76,21 +76,21 @@ public class TransferService {
         return ResponseEntity.ok(dtoPage);
     }
 
-public ResponseEntity<Page<TransactionReturnDTO>> getTransactionsByUser(Pageable pageable) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    UUID userId = UUID.fromString(authentication.getName());
+    public ResponseEntity<Page<TransactionReturnDTO>> getTransactionsByUser(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID userId = UUID.fromString(authentication.getName());
 
-    Page<Transaction> transactions = transactionRepository.findByOriginCard_User_UserId(userId, pageable);
+        Page<Transaction> transactions = transactionRepository.findByOriginCard_User_UserId(userId, pageable);
 
-        Page<TransactionReturnDTO> dtoPage = transactions.map(t -> {
-            UserShortDTOForCard userDto = new UserShortDTOForCard(
-                    t.getOriginCard().getUser().getUserId(),
-                    t.getOriginCard().getUser().getFirstName(),
-                    t.getOriginCard().getUser().getLastName(),
-                    t.getOriginCard().getUser().getEmail(),
-                    t.getOriginCard().getUser().getPhoneNumber(),
-                    t.getOriginCard().getUser().getBirthDate()
-            );
+            Page<TransactionReturnDTO> dtoPage = transactions.map(t -> {
+                UserShortDTOForCard userDto = new UserShortDTOForCard(
+                        t.getOriginCard().getUser().getUserId(),
+                        t.getOriginCard().getUser().getFirstName(),
+                        t.getOriginCard().getUser().getLastName(),
+                        t.getOriginCard().getUser().getEmail(),
+                        t.getOriginCard().getUser().getPhoneNumber(),
+                        t.getOriginCard().getUser().getBirthDate()
+                );
 
             return new TransactionReturnDTO(
                     t.getTransactionId(),
