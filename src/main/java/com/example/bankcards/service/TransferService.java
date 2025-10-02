@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class TransferService {
 
@@ -30,6 +29,7 @@ public class TransferService {
     private final TransactionMapper transactionMapper;
     private final TransactionRepository transactionRepository;
 
+    @Transactional
     public ResponseEntity<TransferResponseDTO> transfer(TransferRequestDTO dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UUID userId = UUID.fromString(authentication.getName());
@@ -82,28 +82,25 @@ public ResponseEntity<Page<TransactionReturnDTO>> getTransactionsByUser(Pageable
 
     Page<Transaction> transactions = transactionRepository.findByOriginCard_User_UserId(userId, pageable);
 
-    Page<TransactionReturnDTO> dtoPage = transactions.map(t -> {
-        UserShortDTOForCard userDto = new UserShortDTOForCard(
-                t.getOriginCard().getUser().getUserId(),
-                t.getOriginCard().getUser().getFirstName(),
-                t.getOriginCard().getUser().getLastName(),
-                t.getOriginCard().getUser().getEmail(),
-                t.getOriginCard().getUser().getPhoneNumber(),
-                t.getOriginCard().getUser().getBirthDate()
-        );
+        Page<TransactionReturnDTO> dtoPage = transactions.map(t -> {
+            UserShortDTOForCard userDto = new UserShortDTOForCard(
+                    t.getOriginCard().getUser().getUserId(),
+                    t.getOriginCard().getUser().getFirstName(),
+                    t.getOriginCard().getUser().getLastName(),
+                    t.getOriginCard().getUser().getEmail(),
+                    t.getOriginCard().getUser().getPhoneNumber(),
+                    t.getOriginCard().getUser().getBirthDate()
+            );
 
-        return new TransactionReturnDTO(
-                t.getTransactionId(),
-                t.getAmount(),
-                t.getCreatedAt(),
-                t.getOriginCard().getMaskedCardNumber(),
-                t.getDestinationCard().getMaskedCardNumber(),
-                userDto
-        );
-    });
-
-    return ResponseEntity.ok(dtoPage);
-}
-
-
+            return new TransactionReturnDTO(
+                    t.getTransactionId(),
+                    t.getAmount(),
+                    t.getCreatedAt(),
+                    t.getOriginCard().getMaskedCardNumber(),
+                    t.getDestinationCard().getMaskedCardNumber(),
+                    userDto
+            );
+        });
+        return ResponseEntity.ok(dtoPage);
+    }
 }
